@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlsoFits — Parts That Also Fit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* ── Theme Variables ───────────────────────────────── */
+    :root {
+      --bg: #0c0a09;
+      --fg: #fafaf9;
+      --card: #1c1917;
+      --card-fg: #fafaf9;
+      --primary: #f59e0b;
+      --primary-fg: #0c0a09;
+      --secondary: #292524;
+      --secondary-fg: #fafaf9;
+      --muted: #292524;
+      --muted-fg: #a8a29e;
+      --accent: #44403c;
+      --accent-fg: #fafaf9;
+      --destructive: #ef4444;
+      --destructive-fg: #fafafa;
+      --border: #292524;
+      --ring: #f59e0b;
+      --success: #22c55e;
+      --border-light: #44403c;
+    }
+
+    [data-theme="light"] {
+      --bg: #f5f3f0;
+      --fg: #1c1917;
+      --card: #ffffff;
+      --card-fg: #1c1917;
+      --primary: #d97706;
+      --primary-fg: #ffffff;
+      --secondary: #e7e5e4;
+      --secondary-fg: #1c1917;
+      --muted: #d6d3d1;
+      --muted-fg: #78716c;
+      --accent: #292524;
+      --accent-fg: #fafaf9;
+      --destructive: #dc2626;
+      --destructive-fg: #fafafa;
+      --border: #d6d3d1;
+      --ring: #d97706;
+      --success: #15803d;
+      --border-light: #d6d3d1;
+    }
+
+    body { background: var(--bg); color: var(--fg); }
+
+    /* ── Layout ─────────────────────────────────────────── */
+    .min-h-screen { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Header */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+    }
+    .header-left {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .logo-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 2.5rem; height: 2.5rem; border-radius: 0.75rem;
+      background: var(--primary); box-shadow: 0 4px 6px -1px rgba(245,158,11,0.3);
+    }
+    .logo-icon svg { width: 1.25rem; height: 1.25rem; color: var(--primary-fg); }
+    .logo-text {
+      font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--fg);
+    }
+    .header-right { display: flex; align-items: center; gap: 0.75rem; }
+
+    /* Theme toggle */
+    .theme-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 2.25rem; height: 2.25rem; border-radius: 0.5rem;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted-fg); cursor: pointer; transition: all 0.2s;
+    }
+    .theme-btn:hover { background: var(--secondary); color: var(--fg); }
+    .theme-btn svg { width: 1rem; height: 1rem; }
+
+    /* Main */
+    main {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 3rem 1rem;
+    }
+
+    /* Hero */
+    .hero { text-align: center; margin-bottom: 3rem; }
+    .hero h1 {
+      font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em;
+      color: var(--fg); margin-bottom: 1rem;
+    }
+    .hero h1 .highlight { color: var(--primary); }
+    .hero p {
+      max-width: 36rem; margin: 0 auto; font-size: 1.125rem;
+      line-height: 1.6; color: var(--muted-fg);
+    }
+
+    /* Slot Machine */
+    .slot-machine { margin-bottom: 4rem; width: 100%; max-width: 64rem; }
+    .slot-inner {
+      display: flex; flex-direction: column; align-items: center; gap: 2rem;
+    }
+    .slot-reels {
+      display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+    }
+    @media (min-width: 1024px) {
+      .slot-reels { flex-direction: row; align-items: flex-end; gap: 1rem; }
+    }
+
+    .reel-col { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .reel-label {
+      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--muted-fg);
+    }
+    .reel-frame {
+      position: relative; width: 100%; max-width: 12rem;
+      height: 12rem; overflow: hidden; border-radius: 0.75rem;
+      border: 1px solid var(--border); background: var(--card);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+    }
+    .reel-gradient-top {
+      pointer-events: none; position: absolute; inset: 0 0 auto 0;
+      height: 4rem; z-index: 10;
+      background: linear-gradient(to bottom, var(--card), transparent);
+    }
+    .reel-gradient-bottom {
+      pointer-events: none; position: absolute; inset: auto 0 0 0;
+      height: 4rem; z-index: 10;
+      background: linear-gradient(to top, var(--card), transparent);
+    }
+    .reel-highlight {
+      pointer-events: none; position: absolute; left: 0.5rem; right: 0.5rem;
+      top: 50%; height: 5rem; z-index: 20;
+      border: 2px solid rgba(245,158,11,0.5);
+      border-radius: 0.5rem;
+      transform: translateY(-50%);
+    }
+    .reel-track {
+      display: flex; flex-direction: column; transition: transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .reel-item {
+      display: flex; align-items: center; justify-content: center;
+      height: 5rem; flex-shrink: 0;
+    }
+    .reel-item span {
+      text-align: center; font-size: 0.875rem; font-weight: 600;
+      color: var(--fg); line-height: 1.3; padding: 0 0.75rem;
+    }
+
+    .slot-connector {
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    @media (min-width: 1024px) {
+      .slot-connector { flex-direction: column; }
+    }
+    .slot-connector span {
+      font-size: 1.5rem; font-weight: 300; color: var(--muted-fg);
+    }
+
+    .logo-badge {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 0.5rem; padding: 0 1rem;
+    }
+    .logo-badge-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 3rem; height: 3rem; border-radius: 0.75rem;
+      background: var(--primary);
+      box-shadow: 0 4px 6px -1px rgba(245,158,11,0.25);
+    }
+    .logo-badge-icon svg { width: 1.5rem; height: 1.5rem; color: var(--primary-fg); }
+    .logo-badge-text {
+      font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; color: var(--fg);
+    }
+
+    .slot-btn {
+      position: relative; overflow: hidden; padding: 1rem 2rem;
+      border: none; border-radius: 0.75rem; background: var(--primary);
+      color: var(--primary-fg); font-size: 1.125rem; font-weight: 600;
+      cursor: pointer; box-shadow: 0 10px 15px -3px rgba(245,158,11,0.3);
+      transition: all 0.2s;
+    }
+    .slot-btn:hover { transform: scale(1.05); box-shadow: 0 15px 20px -4px rgba(245,158,11,0.35); }
+    .slot-btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none; }
+    .slot-btn-shine {
+      position: absolute; inset: 0; transform: translateX(-100%);
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+      transition: transform 0.7s;
+    }
+    .slot-btn:hover .slot-btn-shine { transform: translateX(100%); }
+    .slot-subtitle {
+      max-width: 28rem; text-align: center; font-size: 0.875rem;
+      line-height: 1.5; color: var(--muted-fg);
+    }
+
+    /* Social Login Card */
+    .login-card {
+      width: 100%; max-width: 28rem;
+      border-radius: 1rem; border: 1px solid var(--border);
+      background: var(--card); padding: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+    }
+    .login-card h2 {
+      text-align: center; font-size: 1.25rem; font-weight: 600;
+      color: var(--fg); margin-bottom: 0.5rem;
+    }
+    .login-card .subtitle {
+      text-align: center; font-size: 0.875rem; color: var(--muted-fg);
+      margin-bottom: 1.5rem;
+    }
+    .login-btn {
+      display: flex; width: 100%; align-items: center; justify-content: center;
+      gap: 0.75rem; padding: 0.75rem 1rem; border: 1px solid var(--border);
+      border-radius: 0.75rem; background: var(--card);
+      color: var(--fg); font-size: 0.9375rem; font-weight: 500;
+      cursor: pointer; transition: background 0.2s; margin-bottom: 0.75rem;
+    }
+    .login-btn:hover { background: var(--secondary); }
+    .login-btn.primary {
+      background: var(--primary); color: var(--primary-fg); border-color: var(--primary);
+    }
+    .login-btn.primary:hover { opacity: 0.9; }
+    .login-btn svg { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+    .divider {
+      position: relative; margin: 0.75rem 0; display: flex; align-items: center;
+    }
+    .divider-line {
+      flex: 1; height: 1px; background: var(--border);
+    }
+    .divider-text {
+      padding: 0 0.75rem; font-size: 0.75rem; color: var(--muted-fg);
+      background: var(--card);
+    }
+    .terms {
+      margin-top: 1.5rem; text-align: center; font-size: 0.75rem;
+      color: var(--muted-fg); line-height: 1.5;
+    }
+    .terms a { color: var(--muted-fg); text-decoration: underline; }
+    .terms a:hover { color: var(--fg); }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border); padding: 1.5rem;
+    }
+    .footer-inner {
+      max-width: 64rem; margin: 0 auto;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: space-between; gap: 1rem;
+    }
+    @media (min-width: 640px) { .footer-inner { flex-direction: row; } }
+    .footer-inner p { font-size: 0.875rem; color: var(--muted-fg); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      font-size: 0.875rem; color: var(--muted-fg); text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--fg); }
+
+    /* Responsive hero */
+    @media (min-width: 640px) {
+      .hero h1 { font-size: 3rem; }
+    }
+    @media (min-width: 1024px) {
+      .hero h1 { font-size: 3.75rem; }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--muted-fg); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--fg); }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+          </svg>
+        </div>
+        <span class="logo-text">AlsoFits</span>
+      </div>
+      <div class="header-right">
+        <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main>
+      <div class="hero">
+        <h1>Find Parts That <span class="highlight">Also Fit</span></h1>
+        <p>
+          Stop overpaying for rare OEM parts. Discover community-verified alternatives
+          from common vehicles that fit your classic or enthusiast car.
+        </p>
+      </div>
+
+      <!-- Slot Machine -->
+      <div class="slot-machine">
+        <div class="slot-inner">
+          <div class="slot-reels">
+            <!-- Part Reel -->
+            <div class="reel-col">
+              <span class="reel-label">Part</span>
+              <div class="reel-frame">
+                <div class="reel-gradient-top"></div>
+                <div class="reel-gradient-bottom"></div>
+                <div class="reel-highlight"></div>
+                <div class="reel-track" id="partReel">
+                  <div class="reel-item"><span>Coolant Expansion Tank</span></div>
+                  <div class="reel-item"><span>Brake Caliper</span></div>
+                  <div class="reel-item"><span>Alternator</span></div>
+                  <div class="reel-item"><span>Water Pump</span></div>
+                  <div class="reel-item"><span>Starter Motor</span></div>
+                  <div class="reel-item"><span>Fuel Pump</span></div>
+                  <div class="reel-item"><span>Radiator</span></div>
+                  <div class="reel-item"><span>Thermostat Housing</span></div>
+                  <!-- Duplicated for seamless loop -->
+                  <div class="reel-item"><span>Coolant Expansion Tank</span></div>
+                  <div class="reel-item"><span>Brake Caliper</span></div>
+                  <div class="reel-item"><span>Alternator</span></div>
+                  <div class="reel-item"><span>Water Pump</span></div>
+                  <div class="reel-item"><span>Starter Motor</span></div>
+                  <div class="reel-item"><span>Fuel Pump</span></div>
+                  <div class="reel-item"><span>Radiator</span></div>
+                  <div class="reel-item"><span>Thermostat Housing</span></div>
+                  <!-- Extra copy -->
+                  <div class="reel-item"><span>Coolant Expansion Tank</span></div>
+                  <div class="reel-item"><span>Brake Caliper</span></div>
+                  <div class="reel-item"><span>Alternator</span></div>
+                  <div class="reel-item"><span>Water Pump</span></div>
+                  <div class="reel-item"><span>Starter Motor</span></div>
+                  <div class="reel-item"><span>Fuel Pump</span></div>
+                  <div class="reel-item"><span>Radiator</span></div>
+                  <div class="reel-item"><span>Thermostat Housing</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="slot-connector">
+              <span>from</span>
+            </div>
+
+            <!-- Source Vehicle Reel -->
+            <div class="reel-col">
+              <span class="reel-label">Source Vehicle</span>
+              <div class="reel-frame">
+                <div class="reel-gradient-top"></div>
+                <div class="reel-gradient-bottom"></div>
+                <div class="reel-highlight"></div>
+                <div class="reel-track" id="sourceReel">
+                  <div class="reel-item"><span>FIAT Doblo Van</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 156</span></div>
+                  <div class="reel-item"><span>Lancia Delta</span></div>
+                  <div class="reel-item"><span>FIAT Stilo</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 147</span></div>
+                  <div class="reel-item"><span>FIAT Bravo</span></div>
+                  <div class="reel-item"><span>FIAT Doblo Van</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 156</span></div>
+                  <div class="reel-item"><span>Lancia Delta</span></div>
+                  <div class="reel-item"><span>FIAT Stilo</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 147</span></div>
+                  <div class="reel-item"><span>FIAT Bravo</span></div>
+                  <div class="reel-item"><span>FIAT Doblo Van</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 156</span></div>
+                  <div class="reel-item"><span>Lancia Delta</span></div>
+                  <div class="reel-item"><span>FIAT Stilo</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 147</span></div>
+                  <div class="reel-item"><span>FIAT Bravo</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="logo-badge">
+              <div class="logo-badge-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </svg>
+              </div>
+              <span class="logo-badge-text">AlsoFits</span>
+            </div>
+
+            <!-- Target Vehicle Reel -->
+            <div class="reel-col">
+              <span class="reel-label">Your Vehicle</span>
+              <div class="reel-frame">
+                <div class="reel-gradient-top"></div>
+                <div class="reel-gradient-bottom"></div>
+                <div class="reel-highlight"></div>
+                <div class="reel-track" id="targetReel">
+                  <div class="reel-item"><span>Alfa Romeo GTV</span></div>
+                  <div class="reel-item"><span>FIAT Coupe 20V</span></div>
+                  <div class="reel-item"><span>Lancia Kappa</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 166</span></div>
+                  <div class="reel-item"><span>Maserati 3200 GT</span></div>
+                  <div class="reel-item"><span>FIAT Marea Weekend</span></div>
+                  <div class="reel-item"><span>Alfa Romeo GTV</span></div>
+                  <div class="reel-item"><span>FIAT Coupe 20V</span></div>
+                  <div class="reel-item"><span>Lancia Kappa</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 166</span></div>
+                  <div class="reel-item"><span>Maserati 3200 GT</span></div>
+                  <div class="reel-item"><span>FIAT Marea Weekend</span></div>
+                  <div class="reel-item"><span>Alfa Romeo GTV</span></div>
+                  <div class="reel-item"><span>FIAT Coupe 20V</span></div>
+                  <div class="reel-item"><span>Lancia Kappa</span></div>
+                  <div class="reel-item"><span>Alfa Romeo 166</span></div>
+                  <div class="reel-item"><span>Maserati 3200 GT</span></div>
+                  <div class="reel-item"><span>FIAT Marea Weekend</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="slot-btn" id="spinBtn">
+            Try It Out
+            <div class="slot-btn-shine"></div>
+          </button>
+
+          <p class="slot-subtitle">
+            Discover compatible parts across different vehicles. Our community-verified database
+            helps you find affordable alternatives that fit.
+          </p>
+        </div>
+      </div>
+
+      <!-- "Sign Up" Card (no social login — just a placeholder) -->
+      <div class="login-card">
+        <h2>Get Started</h2>
+        <p class="subtitle">Save your garage and discover compatible parts</p>
+
+        <div class="placeholder-section" style="text-align:center; padding: 2rem 0;">
+          <svg style="width:3rem;height:3rem;margin:0 auto 1rem;color:var(--muted-fg);opacity:0.5;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <p style="color:var(--muted-fg);font-size:0.9375rem;margin-bottom:0.5rem;">Sign in coming soon</p>
+          <p style="color:var(--muted-fg);font-size:0.8125rem;opacity:0.7;">Social login will be available shortly.</p>
+        </div>
+
+        <p class="terms">
+          By continuing, you agree to our
+          <a href="#">Terms of Service</a>
+          and
+          <a href="#">Privacy Policy</a>
+        </p>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-inner">
+        <p>Built by enthusiasts, for enthusiasts. © 2026 AlsoFits.</p>
+        <div class="footer-links">
+          <a href="#">About</a>
+          <a href="#">Community</a>
+          <a href="#">Support</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // ── Theme Toggle ──────────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function getTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'dark';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('alsofits-theme', theme);
+      updateThemeIcon(theme);
+    }
+
+    function updateThemeIcon(theme) {
+      if (theme === 'dark') {
+        themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />';
+      } else {
+        themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+      }
+    }
+
+    // Load saved theme, default to dark
+    const savedTheme = localStorage.getItem('alsofits-theme') || 'dark';
+    setTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = getTheme();
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // ── Slot Machine ──────────────────────────────────────
+    const parts = [
+      'Coolant Expansion Tank', 'Brake Caliper', 'Alternator', 'Water Pump',
+      'Starter Motor', 'Fuel Pump', 'Radiator', 'Thermostat Housing'
+    ];
+    const sourceCars = [
+      'FIAT Doblo Van', 'Alfa Romeo 156', 'Lancia Delta', 'FIAT Stilo',
+      'Alfa Romeo 147', 'FIAT Bravo'
+    ];
+    const targetCars = [
+      'Alfa Romeo GTV', 'FIAT Coupe 20V', 'Lancia Kappa', 'Alfa Romeo 166',
+      'Maserati 3200 GT', 'FIAT Marea Weekend'
+    ];
+
+    const partReel = document.getElementById('partReel');
+    const sourceReel = document.getElementById('sourceReel');
+    const targetReel = document.getElementById('targetReel');
+    const spinBtn = document.getElementById('spinBtn');
+    let isSpinning = false;
+
+    // Each item is 5rem = 80px
+    const ITEM_PX = 80;
+    // Number of unique items
+    const PART_COUNT = parts.length;
+    const SOURCE_COUNT = sourceCars.length;
+    const TARGET_COUNT = targetCars.length;
+    // "Middle" copy start index (second copy of items)
+    const PART_MID = PART_COUNT;
+    const SOURCE_MID = SOURCE_COUNT;
+    const TARGET_MID = TARGET_COUNT;
+
+    // Current positions (in "second copy" range for initial middle alignment)
+    let partPos = PART_MID;
+    let sourcePos = SOURCE_MID;
+    let targetPos = TARGET_MID;
+
+    function updateReel(el, pos) {
+      const centerOffset = (200 - ITEM_PX) / 2;
+      el.style.transform = `translateY(-${pos * ITEM_PX - centerOffset}px)`;
+    }
+
+    // Set initial positions
+    updateReel(partReel, partPos);
+    updateReel(sourceReel, sourcePos);
+    updateReel(targetReel, targetPos);
+
+    spinBtn.addEventListener('click', () => {
+      if (isSpinning) return;
+      isSpinning = true;
+      spinBtn.disabled = true;
+      spinBtn.textContent = 'Finding matches...';
+
+      const randomPart = Math.floor(Math.random() * PART_COUNT);
+      const randomSource = Math.floor(Math.random() * SOURCE_COUNT);
+      const randomTarget = Math.floor(Math.random() * TARGET_COUNT);
+      const extraSpins = 2;
+
+      // Calculate target positions (always add extra spins to go forward)
+      const newPartPos = partPos + PART_COUNT * extraSpins +
+        ((randomPart - (partPos % PART_COUNT) + PART_COUNT) % PART_COUNT);
+
+      // Part reel spins immediately
+      partReel.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      updateReel(partReel, newPartPos);
+      partPos = newPartPos;
+
+      // Source reel spins after a short delay
+      setTimeout(() => {
+        const newSourcePos = sourcePos + SOURCE_COUNT * extraSpins +
+          ((randomSource - (sourcePos % SOURCE_COUNT) + SOURCE_COUNT) % SOURCE_COUNT);
+        sourceReel.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        updateReel(sourceReel, newSourcePos);
+        sourcePos = newSourcePos;
+      }, 200);
+
+      // Target reel spins after another delay
+      setTimeout(() => {
+        const newTargetPos = targetPos + TARGET_COUNT * extraSpins +
+          ((randomTarget - (targetPos % TARGET_COUNT) + TARGET_COUNT) % TARGET_COUNT);
+        targetReel.style.transition = 'transform 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        updateReel(targetReel, newTargetPos);
+        targetPos = newTargetPos;
+      }, 400);
+
+      setTimeout(() => {
+        // Reset transitions to instant for next spin
+        partReel.style.transition = 'none';
+        sourceReel.style.transition = 'none';
+        targetReel.style.transition = 'none';
+
+        isSpinning = false;
+        spinBtn.disabled = false;
+        spinBtn.textContent = 'Try It Out';
+      }, 3200);
+    });
+  </script>
+</body>
+</html>
